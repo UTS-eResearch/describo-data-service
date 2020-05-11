@@ -17,6 +17,10 @@
         "url": "https://github.com/UTS-eResearch/describo-data-service/issues"
     },
     "homepage": "https://github.com/UTS-eResearch/describo-data-service#readme",
+    "engines": {
+        "node": ">=12.0.0",
+        "npm": ">=6.0.0"
+    },
     "dependencies": {
         "sequelize": "^5.21.8"
     },
