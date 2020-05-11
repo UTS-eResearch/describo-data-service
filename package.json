@@ -22,9 +22,11 @@
         "npm": ">=6.0.0"
     },
     "dependencies": {
-        "sequelize": "^5.21.8"
+        "sequelize": "^5.21.8",
+        "sqlite3": "^4.2.0"
     },
     "devDependencies": {
+        "fs-extra": "^9.0.0",
         "jest": "^26.0.1"
     }
 }
