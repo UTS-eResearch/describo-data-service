@@ -1,5 +1,5 @@
-const Setup = require("./src/setup-database");
+const Database = require("./src/database");
 
 module.exports = {
-    Setup,
+    Database,
 };

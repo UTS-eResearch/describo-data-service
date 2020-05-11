@@ -2,7 +2,7 @@ const { Sequelize, Model, DataTypes } = require("sequelize");
 let modules = [require("./data.model")];
 const models = [];
 
-class Setup {
+class Database {
     constructor({ databaseFile }) {
         this.databaseFile = databaseFile;
 
@@ -23,4 +23,4 @@ class Setup {
     }
 }
 
-module.exports = Setup;
+module.exports = Database;
