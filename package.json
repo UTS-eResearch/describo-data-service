@@ -1,0 +1,19 @@
+{
+  "name": "describo-data-service",
+  "version": "0.1.0",
+  "description": "A library / service to provide data to describo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/UTS-eResearch/describo-data-service.git"
+  },
+  "author": "Marco La Rosa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UTS-eResearch/describo-data-service/issues"
+  },
+  "homepage": "https://github.com/UTS-eResearch/describo-data-service#readme"
+}
