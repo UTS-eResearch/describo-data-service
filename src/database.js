@@ -24,20 +24,26 @@ class Database {
         return this.sequelize.models;
     }
 
-    async load({ file, url }) {
+    async load({ file, url, chunkSize = 10 }) {
         const sourceModel = this.models.source;
         const dataModel = this.models.data;
 
         let data;
         if (file && (await pathExists(file))) {
             data = await readJson(file);
+            this.verifyInputData({ data });
             await sourceModel.upsert({ file });
         } else if (url) {
+            let response = await fetch(url, { cache: "reload" });
+            if (response.status !== 200) {
+                throw new Error(response);
+            }
+            data = await response.json();
+            this.verifyInputData({ data });
+            await sourceModel.upsert({ url });
         }
 
-        this.verifyInputData({ data });
-
-        for (let c of chunk(data, 10)) {
+        for (let c of chunk(data, chunkSize)) {
             await dataModel.bulkCreate(c);
         }
     }

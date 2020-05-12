@@ -123,3 +123,48 @@ test("it should be able to load data from a file", async () => {
     await remove(dataPack);
     await remove(databaseFile);
 });
+
+test("it should be able to load data from a url", async () => {
+    let data = [
+        {
+            "@id": "1",
+            "@type": "Product",
+            name: "describo",
+            description: "an awesome tool!",
+            data: {
+                "@id": "1",
+                "@type": "Product",
+                name: "describo",
+            },
+        },
+    ];
+
+    global.fetch = jest.fn().mockImplementation(() => {
+        return new Promise((resolve, reject) => {
+            resolve({
+                ok: true,
+                status: 200,
+                Id: "123",
+                json: function () {
+                    return data;
+                },
+            });
+        });
+    });
+
+    const databaseFile = path.join(__dirname, "database.sqlite");
+    await remove(databaseFile);
+    const url = "http://path/to/data.pack";
+
+    const database = new Database({ databaseFile });
+    await database.connect();
+    await database.load({ url });
+    ({ data } = database.models);
+    const results = await data.findAll();
+    expect(results.length).toBe(1);
+    const result = results[0].get();
+    expect(result["@id"]).toBe("1");
+    expect(result["@type"]).toBe("Product");
+    expect(result.name).toBe("describo");
+    await remove(databaseFile);
+});
