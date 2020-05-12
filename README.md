@@ -169,13 +169,9 @@ The data structure is as follows:
         '@type': { the type of the item - REQUIRED },
         name: { the name of the item - REQUIRED},
         description: { a description of the item - OPTIONAL},
-        data: {
-            '@id': { the item identifier },
-            '@type': { the type of the item }
-            property1: some value,
-            property2: some value,
-            ...
-        }
+        property1: some value,
+        property2: some value,
+        ...
     }
 
 ]
@@ -184,7 +180,6 @@ The data structure is as follows:
 Things to note:
 
 -   it must be an array of objects;
--   @id, @type, name and data are required for each entry;
--   the data property must be an object with @id and @type properties;
--   the data object can contain whatever you like in it - this will be injected into the graph as is.
--   @id is a unique property in the database ensure that the data pack has sensible, domain specific, unique identifiers.
+-   `@id`, `@type` and `name` are required for each entry;
+-   you can have anything else in the entry;
+-   @id is a unique property in the database so ensure that the data pack has sensible, domain specific, unique identifiers.

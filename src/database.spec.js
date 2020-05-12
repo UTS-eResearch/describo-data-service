@@ -39,44 +39,7 @@ test("test verifying input data", () => {
     data = [{ "@id": "1", "@type": "Person" }];
     expectTestToThrow({
         data,
-        message: "Each entry in the data must have an name property",
-    });
-
-    data = [{ "@id": "1", "@type": "Person", name: "x" }];
-    expectTestToThrow({
-        data,
-        message: "Each entry in the data must have an data property",
-    });
-
-    data = [{ "@id": "1", "@type": "Person", name: "x", data: "" }];
-    expectTestToThrow({
-        data,
-        message: "The data property of an entry must be an object",
-    });
-
-    data = [{ "@id": "1", "@type": "Person", name: "x", data: {} }];
-    expectTestToThrow({
-        data,
-        message: "The data object must have an @id property",
-    });
-
-    data = [{ "@id": "1", "@type": "Person", name: "x", data: { "@id": "1" } }];
-    expectTestToThrow({
-        data,
-        message: "The data object must have an @type property",
-    });
-
-    data = [
-        {
-            "@id": "1",
-            "@type": "Person",
-            name: "x",
-            data: { "@id": "1", "@type": "Person" },
-        },
-    ];
-    expectTestToThrow({
-        data,
-        message: "The data object must have an @type property",
+        message: "Each entry in the data must have a name property",
     });
 
     function expectTestToThrow({ data, message }) {
@@ -128,11 +91,6 @@ test("it should be able to load a file again", async () => {
             "@type": "Product",
             name: "describo",
             description: "an awesome tool!",
-            data: {
-                "@id": "1",
-                "@type": "Product",
-                name: "describo",
-            },
         },
     ];
     const dataPack = path.join(__dirname, "data-pack");
@@ -163,11 +121,6 @@ test("it should be able to load data from a url", async () => {
             "@type": "Product",
             name: "describo",
             description: "an awesome tool!",
-            data: {
-                "@id": "1",
-                "@type": "Product",
-                name: "describo",
-            },
         },
     ];
 
@@ -207,11 +160,6 @@ test("it should be able to query the database", async () => {
             "@type": "Product",
             name: "describo",
             description: "an awesome tool!",
-            data: {
-                "@id": "1",
-                "@type": "Product",
-                name: "describo",
-            },
         },
     ];
     const dataPack = path.join(__dirname, "data-pack");
@@ -254,11 +202,6 @@ test("it should be able to retrieve a specific entry", async () => {
             "@type": "Product",
             name: "describo",
             description: "an awesome tool!",
-            data: {
-                "@id": "1",
-                "@type": "Product",
-                name: "describo",
-            },
         },
     ];
     const dataPack = path.join(__dirname, "data-pack");
@@ -267,7 +210,7 @@ test("it should be able to retrieve a specific entry", async () => {
     await remove(dataPack);
     await writeJson(dataPack, data);
     await remove(databaseFile);
-    const database = new Database({ databaseFile });
+    let database = new Database({ databaseFile });
     await database.connect();
     await database.load({ file: dataPack });
 
@@ -278,7 +221,30 @@ test("it should be able to retrieve a specific entry", async () => {
         "@id": "1",
         "@type": "Product",
         name: "describo",
+        description: "an awesome tool!",
     });
+
+    data = [
+        {
+            "@id": "1",
+            "@type": "Product",
+            name: "describo",
+            description: "an awesome tool!",
+            language: "x",
+            cows: "y",
+        },
+    ];
+    await remove(dataPack);
+    await writeJson(dataPack, data);
+    await remove(databaseFile);
+    database = new Database({ databaseFile });
+    await database.connect();
+    await database.load({ file: dataPack });
+
+    result = (await database.query({ "@id": 1 }))[0];
+    result = await database.get({ "@id": result["@id"] });
+    expect(result.language).toBe("x");
+    expect(result.cows).toBe("y");
 
     await remove(dataPack);
     await remove(databaseFile);

@@ -45,6 +45,15 @@ class Database {
         }
 
         for (let c of chunk(data, chunkSize)) {
+            c = c.map((entry) => {
+                return {
+                    "@id": entry["@id"],
+                    "@type": entry["@type"],
+                    name: entry.name,
+                    description: entry.description,
+                    data: entry,
+                };
+            });
             await dataModel.bulkCreate(c, {
                 updateOnDuplicate: ["@id"],
             });
@@ -64,7 +73,6 @@ class Database {
                 "@id": result.get("@id"),
                 "@type": result.get("@type"),
                 name: result.get("name"),
-                description: result.get("description"),
             };
         });
     }
@@ -98,20 +106,8 @@ class Database {
                 );
             if (!has(entry, "name"))
                 throw new Error(
-                    `Each entry in the data must have an name property`
+                    `Each entry in the data must have a name property`
                 );
-            if (!has(entry, "data"))
-                throw new Error(
-                    `Each entry in the data must have an data property`
-                );
-            if (!isPlainObject(entry.data))
-                throw new Error(
-                    `The data property of an entry must be an object`
-                );
-            if (!has(entry.data, "@id"))
-                throw new Error(`The data object must have an @id property`);
-            if (!has(entry.data, "@type"))
-                throw new Error(`The data object must have an @type property`);
         }
     }
 }
