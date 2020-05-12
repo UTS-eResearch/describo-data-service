@@ -51,14 +51,14 @@ class Database {
         }
     }
 
-    async query({ "@id": id, "@type": type, name, description }) {
+    async query({ "@id": id, "@type": type, name, description, limit = 10 }) {
         const dataModel = this.models.data;
         let where = {};
         if (id) where["@id"] = { [Op.substring]: id };
         if (type) where["@type"] = { [Op.substring]: type };
         if (name) where.name = { [Op.substring]: name };
         if (description) where.description = { [Op.substring]: description };
-        return await dataModel.findAll({ where }).map((result) => {
+        return await dataModel.findAll({ where, limit }).map((result) => {
             return {
                 id: result.get("id"),
                 "@id": result.get("@id"),
