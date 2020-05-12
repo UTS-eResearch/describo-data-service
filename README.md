@@ -30,6 +30,8 @@ npm install --save UTS-eResearch/describo-data-service
 
 # Tests
 
+The Jest testing framework is used and it comes with built in assertions - see docs @ https://jestjs.io/docs/en/expect.
+
 Run the tests:
 
 > npm run test
@@ -45,7 +47,7 @@ The API is simple.
 ## Get the Database class
 
 ```
-const Database = require("./database");
+const Database = require("describo-data-service");
 ```
 
 ## Connect
