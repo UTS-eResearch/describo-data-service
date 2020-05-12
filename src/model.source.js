@@ -14,9 +14,11 @@ function init(sequelize) {
             },
             file: {
                 type: DataTypes.STRING,
+                unique: true,
             },
             url: {
                 type: DataTypes.STRING,
+                unique: true,
             },
         },
         {
