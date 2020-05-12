@@ -1,6 +1,7 @@
 const { Sequelize, Model, DataTypes } = require("sequelize");
-const { has, isArray, isPlainObject } = require("lodash");
+const { has, isArray, isPlainObject, chunk } = require("lodash");
 let models = [require("./model.data"), require("./model.source")];
+const { readJson, pathExists } = require("fs-extra");
 
 class Database {
     constructor({ databaseFile }) {
@@ -15,6 +16,7 @@ class Database {
             model(sequelize);
         });
         this.sequelize = sequelize;
+        this.models = sequelize.models;
     }
 
     async connect() {
@@ -22,8 +24,19 @@ class Database {
         return this.sequelize.models;
     }
 
-    async load({ data }) {
-        return this.verifyInputData({ data });
+    async load({ file, url }) {
+        let data;
+        if (file && (await pathExists(file))) {
+            data = await readJson(file);
+        } else if (url) {
+        }
+
+        this.verifyInputData({ data });
+
+        const dataModel = this.models.data;
+        for (let c of chunk(data, 10)) {
+            await dataModel.bulkCreate(c);
+        }
     }
 
     verifyInputData({ data }) {

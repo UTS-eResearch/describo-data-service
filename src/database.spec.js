@@ -1,16 +1,18 @@
 const Database = require("./database");
 const path = require("path");
-const { remove } = require("fs-extra");
+const { remove, writeJson } = require("fs-extra");
 
 test("it should be able to get a handle to an sqlite database", async () => {
     const databaseFile = path.join(__dirname, "database.sqlite");
+    await remove(databaseFile);
+
     const database = new Database({ databaseFile });
     const { data } = await database.connect();
-    expect(data).toBeDefined();
+    // expect(data).toBeDefined();
     await remove(databaseFile);
 });
 
-test.only("verifying input data", () => {
+test("verifying input data", () => {
     const databaseFile = path.join(__dirname, "database.sqlite");
     const database = new Database({ databaseFile });
 
@@ -85,4 +87,39 @@ test.only("verifying input data", () => {
             expect(error.message).toMatch(message);
         }
     }
+});
+
+test("it should be able to load data from a file", async () => {
+    let data = [
+        {
+            "@id": "1",
+            "@type": "Product",
+            name: "describo",
+            description: "an awesome tool!",
+            data: {
+                "@id": "1",
+                "@type": "Product",
+                name: "describo",
+            },
+        },
+    ];
+    const dataPack = path.join(__dirname, "data-pack");
+    const databaseFile = path.join(__dirname, "database.sqlite");
+
+    await remove(dataPack);
+    await writeJson(dataPack, data);
+    await remove(databaseFile);
+
+    const database = new Database({ databaseFile });
+    await database.connect();
+    await database.load({ file: dataPack });
+    ({ data } = database.models);
+    const results = await data.findAll();
+    expect(results.length).toBe(1);
+    const result = results[0].get();
+    expect(result["@id"]).toBe("1");
+    expect(result["@type"]).toBe("Product");
+    expect(result.name).toBe("describo");
+    await remove(dataPack);
+    await remove(databaseFile);
 });
