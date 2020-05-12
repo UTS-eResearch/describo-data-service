@@ -21,7 +21,7 @@ function init(sequelize) {
         },
         {
             sequelize,
-            model: "source",
+            modelName: "source",
         }
     );
 }
