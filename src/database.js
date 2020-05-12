@@ -44,7 +44,9 @@ class Database {
         }
 
         for (let c of chunk(data, chunkSize)) {
-            await dataModel.bulkCreate(c);
+            await dataModel.bulkCreate(c, {
+                updateOnDuplicate: ["@id"],
+            });
         }
     }
 

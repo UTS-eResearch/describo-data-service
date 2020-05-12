@@ -124,6 +124,41 @@ test("it should be able to load data from a file", async () => {
     await remove(databaseFile);
 });
 
+test("it should be able to load a file again", async () => {
+    let data = [
+        {
+            "@id": "1",
+            "@type": "Product",
+            name: "describo",
+            description: "an awesome tool!",
+            data: {
+                "@id": "1",
+                "@type": "Product",
+                name: "describo",
+            },
+        },
+    ];
+    const dataPack = path.join(__dirname, "data-pack");
+    const databaseFile = path.join(__dirname, "database.sqlite");
+
+    await remove(dataPack);
+    await writeJson(dataPack, data);
+    await remove(databaseFile);
+
+    const database = new Database({ databaseFile });
+    await database.connect();
+    await database.load({ file: dataPack });
+    await database.load({ file: dataPack });
+    ({ data } = database.models);
+    const results = await data.findAll();
+    expect(results.length).toBe(1);
+    const result = results[0].get();
+    expect(result["@id"]).toBe("1");
+    expect(result["@type"]).toBe("Product");
+    expect(result.name).toBe("describo");
+    await remove(dataPack);
+    await remove(databaseFile);
+});
 test("it should be able to load data from a url", async () => {
     let data = [
         {
