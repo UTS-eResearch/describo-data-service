@@ -2,6 +2,7 @@ const { Sequelize, Model, DataTypes } = require("sequelize");
 const { has, isArray, isPlainObject, chunk } = require("lodash");
 let models = [require("./model.data"), require("./model.source")];
 const { readJson, pathExists } = require("fs-extra");
+const Op = Sequelize.Op;
 
 class Database {
     constructor({ databaseFile }) {
@@ -48,6 +49,24 @@ class Database {
                 updateOnDuplicate: ["@id"],
             });
         }
+    }
+
+    async query({ "@id": id, "@type": type, name, description }) {
+        const dataModel = this.models.data;
+        let where = {};
+        if (id) where["@id"] = { [Op.substring]: id };
+        if (type) where["@type"] = { [Op.substring]: type };
+        if (name) where.name = { [Op.substring]: name };
+        if (description) where.description = { [Op.substring]: description };
+        return await dataModel.findAll({ where }).map((result) => {
+            return {
+                id: result.get("id"),
+                "@id": result.get("@id"),
+                "@type": result.get("@type"),
+                name: result.get("name"),
+                description: result.get("description"),
+            };
+        });
     }
 
     verifyInputData({ data }) {

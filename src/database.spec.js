@@ -11,8 +11,7 @@ test("it should be able to get a handle to an sqlite database", async () => {
     // expect(data).toBeDefined();
     await remove(databaseFile);
 });
-
-test("verifying input data", () => {
+test("test verifying input data", () => {
     const databaseFile = path.join(__dirname, "database.sqlite");
     const database = new Database({ databaseFile });
 
@@ -88,7 +87,6 @@ test("verifying input data", () => {
         }
     }
 });
-
 test("it should be able to load data from a file", async () => {
     let data = [
         {
@@ -123,7 +121,6 @@ test("it should be able to load data from a file", async () => {
     await remove(dataPack);
     await remove(databaseFile);
 });
-
 test("it should be able to load a file again", async () => {
     let data = [
         {
@@ -201,5 +198,52 @@ test("it should be able to load data from a url", async () => {
     expect(result["@id"]).toBe("1");
     expect(result["@type"]).toBe("Product");
     expect(result.name).toBe("describo");
+    await remove(databaseFile);
+});
+test("it should be able to query the database", async () => {
+    let data = [
+        {
+            "@id": "1",
+            "@type": "Product",
+            name: "describo",
+            description: "an awesome tool!",
+            data: {
+                "@id": "1",
+                "@type": "Product",
+                name: "describo",
+            },
+        },
+    ];
+    const dataPack = path.join(__dirname, "data-pack");
+    const databaseFile = path.join(__dirname, "database.sqlite");
+
+    await remove(dataPack);
+    await writeJson(dataPack, data);
+    await remove(databaseFile);
+    const database = new Database({ databaseFile });
+    await database.connect();
+    await database.load({ file: dataPack });
+
+    // test query for @id
+    let results = await database.query({ "@id": 1 });
+    expect(results.length).toBe(1);
+
+    // test query for @type
+    results = await database.query({ "@type": "Product" });
+    expect(results.length).toBe(1);
+
+    // test query for substring match on name
+    results = await database.query({ name: "esc" });
+    expect(results.length).toBe(1);
+
+    // test query for substring match on description
+    results = await database.query({ description: "awesome" });
+    expect(results.length).toBe(1);
+
+    // test query failure on name
+    results = await database.query({ name: "awesome" });
+    expect(results.length).toBe(0);
+
+    await remove(dataPack);
     await remove(databaseFile);
 });
