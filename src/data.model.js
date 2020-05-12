@@ -12,6 +12,10 @@ function initModel(sequelize) {
                 allowNull: false,
                 defaultValue: DataTypes.UUIDV4,
             },
+            "@id": {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
             type: {
                 type: DataTypes.STRING,
                 allowNull: false,
