@@ -1,6 +1,6 @@
 const { Sequelize, Model, DataTypes } = require("sequelize");
 const { has, isArray, isPlainObject } = require("lodash");
-let models = [require("./data.model")];
+let models = [require("./model.data"), require("./model.source")];
 
 class Database {
     constructor({ databaseFile }) {
