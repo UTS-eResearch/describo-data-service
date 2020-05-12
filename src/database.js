@@ -69,6 +69,17 @@ class Database {
         });
     }
 
+    async get({ "@id": id }) {
+        const dataModel = this.models.data;
+        return (
+            await dataModel.findOne({
+                where: {
+                    "@id": id,
+                },
+            })
+        ).get("data");
+    }
+
     verifyInputData({ data }) {
         if (!isArray(data)) {
             throw new Error(`Data must be an array`);
