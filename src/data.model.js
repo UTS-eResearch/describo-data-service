@@ -3,7 +3,7 @@ const { Model, DataTypes } = require("sequelize");
 
 class Data extends Model {}
 
-function initModel(sequelize) {
+function init(sequelize) {
     Data.init(
         {
             id: {
@@ -16,7 +16,7 @@ function initModel(sequelize) {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            type: {
+            "@type": {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
@@ -34,7 +34,16 @@ function initModel(sequelize) {
                 defaultValue: {},
             },
         },
-        { sequelize, modelName: "data" }
+        {
+            sequelize,
+            modelName: "data",
+            indexes: [
+                { fields: ["@type"] },
+                { fields: ["@type", "@id"] },
+                { fields: ["@type", "name"] },
+                { fields: ["@type", "description"] },
+            ],
+        }
     );
 }
-module.exports = initModel;
+module.exports = init;
