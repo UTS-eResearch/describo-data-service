@@ -25,15 +25,18 @@ class Database {
     }
 
     async load({ file, url }) {
+        const sourceModel = this.models.source;
+        const dataModel = this.models.data;
+
         let data;
         if (file && (await pathExists(file))) {
             data = await readJson(file);
+            await sourceModel.upsert({ file });
         } else if (url) {
         }
 
         this.verifyInputData({ data });
 
-        const dataModel = this.models.data;
         for (let c of chunk(data, 10)) {
             await dataModel.bulkCreate(c);
         }
