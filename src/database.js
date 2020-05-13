@@ -5,12 +5,19 @@ const { readJson, pathExists } = require("fs-extra");
 const Op = Sequelize.Op;
 
 class Database {
-    constructor({ databaseFile }) {
+    constructor({ databaseFile, config }) {
         this.databaseFile = databaseFile;
 
-        let sequelize = new Sequelize(`sqlite:${this.databaseFile}`, {
-            logging: false,
-        });
+        let sequelize;
+        if (databaseFile) {
+            sequelize = new Sequelize("", "", "", {
+                dialect: "sqlite",
+                storage: this.databaseFile,
+                logging: false,
+            });
+        } else {
+            // TODO: implement setting up connection to external DB
+        }
 
         // Initialize models
         models.forEach((model) => {
