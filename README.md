@@ -25,7 +25,7 @@ lookups.
 # Use this in your code
 
 ```
-npm install --save UTS-eResearch/describo-data-service
+npm install --save UTS-eResearch/describo-data-service sqlite3
 ```
 
 # Tests
@@ -47,7 +47,7 @@ The API is simple.
 ## Get the Database class
 
 ```
-const Database = require("describo-data-service");
+const { Database } = require("describo-data-service");
 ```
 
 ## Connect
