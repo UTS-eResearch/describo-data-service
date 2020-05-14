@@ -33,14 +33,11 @@ class Database {
     }
 
     async load({ file, url, chunkSize = 10 }) {
-        const sourceModel = this.models.source;
-        const dataModel = this.models.data;
-
         let data;
         if (file && (await pathExists(file))) {
             data = await readJson(file);
             this.verifyInputData({ data });
-            await sourceModel.upsert({ file });
+            await this.models.source.upsert({ file });
         } else if (url) {
             let response = await fetch(url, { cache: "reload" });
             if (response.status !== 200) {
@@ -48,7 +45,7 @@ class Database {
             }
             data = await response.json();
             this.verifyInputData({ data });
-            await sourceModel.upsert({ url });
+            await this.models.source.upsert({ url });
         }
 
         for (let c of chunk(data, chunkSize)) {
@@ -61,33 +58,48 @@ class Database {
                     data: entry,
                 };
             });
-            await dataModel.bulkCreate(c, {
+            await this.models.data.bulkCreate(c, {
                 updateOnDuplicate: ["@id"],
             });
         }
     }
 
     async query({ "@id": id, "@type": type, name, description, limit = 10 }) {
-        const dataModel = this.models.data;
         let where = {};
         if (id) where["@id"] = { [Op.substring]: id };
         if (type) where["@type"] = { [Op.substring]: type };
         if (name) where.name = { [Op.substring]: name };
         if (description) where.description = { [Op.substring]: description };
-        return await dataModel.findAll({ where, limit }).map((result) => {
-            return {
-                id: result.get("id"),
-                "@id": result.get("@id"),
-                "@type": result.get("@type"),
-                name: result.get("name"),
-            };
-        });
+        return await this.models.data
+            .findAll({ where, limit })
+            .map((result) => {
+                return {
+                    id: result.get("id"),
+                    "@id": result.get("@id"),
+                    "@type": result.get("@type"),
+                    name: result.get("name"),
+                };
+            });
+    }
+
+    async getTypes() {
+        return (
+            await this.models.data
+                .findAll({
+                    attributes: [
+                        [
+                            Sequelize.fn("DISTINCT", Sequelize.col("@type")),
+                            "types",
+                        ],
+                    ],
+                })
+                .map((result) => result.get("types"))
+        ).sort();
     }
 
     async get({ "@id": id }) {
-        const dataModel = this.models.data;
         return (
-            await dataModel.findOne({
+            await this.models.data.findOne({
                 where: {
                     "@id": id,
                 },

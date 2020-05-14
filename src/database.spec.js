@@ -195,6 +195,50 @@ test("it should be able to query the database", async () => {
     await remove(dataPack);
     await remove(databaseFile);
 });
+test("it should be able to get a list of types loaded in to the database", async () => {
+    let data = [
+        {
+            "@id": "1",
+            "@type": "Product",
+            name: "describo",
+            description: "an awesome tool!",
+        },
+        {
+            "@id": "2",
+            "@type": "Person",
+            name: "human",
+        },
+    ];
+    const dataPack = path.join(__dirname, "data-pack");
+    const databaseFile = path.join(__dirname, "database.sqlite");
+
+    await remove(dataPack);
+    await writeJson(dataPack, data);
+    await remove(databaseFile);
+
+    let database = new Database({ databaseFile });
+    await database.connect();
+    await database.load({ file: dataPack });
+    let types = await database.getTypes();
+    expect(types).toEqual(["Person", "Product"]);
+
+    await remove(dataPack);
+    await remove(databaseFile);
+
+    data = [];
+    await remove(dataPack);
+    await writeJson(dataPack, data);
+    await remove(databaseFile);
+
+    database = new Database({ databaseFile });
+    await database.connect();
+    await database.load({ file: dataPack });
+    types = await database.getTypes();
+    expect(types).toEqual([]);
+
+    await remove(dataPack);
+    await remove(databaseFile);
+});
 test("it should be able to retrieve a specific entry", async () => {
     let data = [
         {
