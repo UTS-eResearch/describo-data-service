@@ -57,11 +57,6 @@ test("it should be able to load data from a file", async () => {
             "@type": "Product",
             name: "describo",
             description: "an awesome tool!",
-            data: {
-                "@id": "1",
-                "@type": "Product",
-                name: "describo",
-            },
         },
     ];
     const dataPack = path.join(__dirname, "data-pack");
@@ -172,12 +167,19 @@ test("it should be able to query the database", async () => {
     await database.connect();
     await database.load({ file: dataPack });
 
+    // test query for without @type
+    try {
+        let results = await database.query({ "@id": 1 });
+    } catch (error) {
+        expect(error.message).toMatch("@type must be defined for all queries.");
+    }
+
     //
     // OR QUERIES
     //
 
     // test query for @id
-    let results = await database.query({ "@id": 1 });
+    let results = await database.query({ "@type": "Product", "@id": 1 });
     expect(results.length).toBe(1);
 
     // test query for @type
@@ -185,11 +187,14 @@ test("it should be able to query the database", async () => {
     expect(results.length).toBe(1);
 
     // test query for substring match on name
-    results = await database.query({ name: "esc" });
+    results = await database.query({ "@type": "Product", name: "esc" });
     expect(results.length).toBe(1);
 
     // test query for substring match on description
-    results = await database.query({ description: "awesome" });
+    results = await database.query({
+        "@type": "Product",
+        description: "awesome",
+    });
     expect(results.length).toBe(1);
 
     //
@@ -197,6 +202,7 @@ test("it should be able to query the database", async () => {
     //
     results = await database.query({
         queryType: "and",
+        "@type": "Product",
         description: "awesome",
         name: "describo",
     });
@@ -204,13 +210,14 @@ test("it should be able to query the database", async () => {
 
     results = await database.query({
         queryType: "and",
+        "@type": "Product",
         description: "awesome",
         name: "cows",
     });
     expect(results.length).toBe(0);
 
     // test query failure on name
-    results = await database.query({ name: "awesome" });
+    results = await database.query({ "@type": "Person", name: "awesome" });
     expect(results.length).toBe(0);
 
     await remove(dataPack);
@@ -280,7 +287,7 @@ test("it should be able to retrieve a specific entry", async () => {
     await database.load({ file: dataPack });
 
     // retrieve an element by '@id'
-    let result = (await database.query({ "@id": 1 }))[0];
+    let result = (await database.query({ "@type": "Product", "@id": 1 }))[0];
     result = await database.get({ "@id": result["@id"] });
     expect(result).toEqual({
         "@id": "1",
@@ -306,7 +313,7 @@ test("it should be able to retrieve a specific entry", async () => {
     await database.connect();
     await database.load({ file: dataPack });
 
-    result = (await database.query({ "@id": 1 }))[0];
+    result = (await database.query({ "@type": "Product", "@id": 1 }))[0];
     result = await database.get({ "@id": result["@id"] });
     expect(result.language).toBe("x");
     expect(result.cows).toBe("y");

@@ -1,5 +1,5 @@
 const { Sequelize, Model, DataTypes } = require("sequelize");
-const { has, isArray, isPlainObject, chunk } = require("lodash");
+const { has, isArray, isPlainObject, chunk, isEmpty } = require("lodash");
 let models = [require("./model.data"), require("./model.source")];
 const { readJson, pathExists } = require("fs-extra");
 const Op = Sequelize.Op;
@@ -66,32 +66,37 @@ class Database {
 
     async query({
         queryType = "or",
-        "@id": id,
         "@type": type,
+        "@id": id,
         name,
         description,
         limit = 10,
     }) {
+        if (!type) throw new Error(`@type must be defined for all queries.`);
+
         let where = {};
         if (id) where["@id"] = { [Op.substring]: id };
-        if (type) where["@type"] = { [Op.substring]: type };
         if (name) where.name = { [Op.substring]: name };
         if (description) where.description = { [Op.substring]: description };
 
         if (queryType === "or") {
-            where = {
-                [Op.or]: where,
-            };
+            if (!isEmpty(where)) {
+                where = {
+                    [Op.and]: {
+                        "@type": { [Op.substring]: type },
+                        [Op.or]: where,
+                    },
+                };
+            }
         } else if (queryType === "and") {
+            where["@type"] = { [Op.substring]: type };
             where = {
                 [Op.and]: where,
             };
         }
         return await this.models.data
             .findAll({
-                where: {
-                    [Op.or]: where,
-                },
+                where,
                 limit,
             })
             .map((result) => {

@@ -92,22 +92,32 @@ await database.load({ url })
 
 You can load a data pack again - the data will be updated.
 
+### Get the types in the database
+
+```
+let results = await database.getTypes();
+> [ 'Person', 'Product', ...]
+```
+
 ## Query the data
 
-The query method does a `like` query for anything that is provided - %{your string}% - so it's
-aggresive in its matching. By default 10 results are returned but this is configurable in
-your query.
+-   All queries `require the @type` property to be defined;
+-   The query method does a `like` query for anything that is provided - `%{your string}%` - so it's
+    aggresive in its matching;
+-   By default 10 results are returned but this is configurable in your query;
+-   By default, an `OR` query is conducted when specifying multiple query params. In this case the query will be `@type = {type} AND (name = %{query}% OR description = %{query}% OR @id = %{query}%)`.
+-   The query can be set to `AND`. In this case the query will be `@type = {type} AND name = %{query}% AND description = %{query}% AND @id = %{query}%)`.
 
 ### query for @id
 
 ```
-let results = await database.query({ "@id": 1 });
+let results = await database.query({ "@type": "Person", "@id": 1 });
 ```
 
 ### query for @id: return 20 results instead of 10
 
 ```
-results = await database.query({ "@id": 1, limit: 20});
+results = await database.query({ "@type": "Person", "@id": 1, limit: 20});
 ```
 
 ### query for @type
@@ -119,40 +129,53 @@ results = await database.query({ "@type": "Product" });
 ### query for substring match on name
 
 ```
-results = await database.query({ name: "esc" });
+results = await database.query({ "@type": "Person", name: "esc" });
 ```
 
 ### query for substring match on description
 
 ```
-results = await database.query({ description: "awesome" });
+results = await database.query({ "@type": "Person", description: "awesome" });
 ```
 
-### querying on multiple fields also supported
+### querying on multiple fields is supported
+
+1. `OR` query.
 
 ```
-results = await database.query({ '@type': 'Product', description: "awesome" });
+results = await database.query({ '@type': 'Product', description: "awesome", name: 'something' });
+```
+
+2. `AND` query:
+
+```
+results = await database.query({ queryType: 'AND', '@type': 'Product', description: "awesome" });
+
 ```
 
 ### Example result from query
 
 ```
+
 [{
-    id: 'fe5ae24e-b147-4fea-b1b9-6c33b70ab1e1',
-    '@id': '1',
-    '@type': 'Product',
-    name: 'describo',
-    description: 'an awesome tool!'
+id: 'fe5ae24e-b147-4fea-b1b9-6c33b70ab1e1',
+'@id': '1',
+'@type': 'Product',
+name: 'describo',
+description: 'an awesome tool!'
 }]
+
 ```
 
 ## Retrieve the data blob for a given identifier
 
 ```
+
 result = await database.get({ "@id": '1' });
 
 // returns a structure like:
 { '@id': '1', '@type': 'Product', name: 'describo' }
+
 ```
 
 stopper-garage-trace-infer
@@ -165,18 +188,20 @@ back a JSON blob to inject into the graph.
 The data structure is as follows:
 
 ```
+
 [
-    {
-        '@id': { unique identifier for this item - REQUIRED },
-        '@type': { the type of the item - REQUIRED },
-        name: { the name of the item - REQUIRED},
-        description: { a description of the item - OPTIONAL},
-        property1: some value,
-        property2: some value,
-        ...
-    }
+{
+'@id': { unique identifier for this item - REQUIRED },
+'@type': { the type of the item - REQUIRED },
+name: { the name of the item - REQUIRED},
+description: { a description of the item - OPTIONAL},
+property1: some value,
+property2: some value,
+...
+}
 
 ]
+
 ```
 
 Things to note:
@@ -185,3 +210,7 @@ Things to note:
 -   `@id`, `@type` and `name` are required for each entry;
 -   you can have anything else in the entry;
 -   @id is a unique property in the database so ensure that the data pack has sensible, domain specific, unique identifiers.
+
+```
+
+```
