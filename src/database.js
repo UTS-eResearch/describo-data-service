@@ -15,8 +15,17 @@ class Database {
                 storage: this.databaseFile,
                 logging: false,
             });
-        } else {
-            // TODO: implement setting up connection to external DB
+        } else if (config) {
+            sequelize = new Sequelize(
+                config.database,
+                config.username,
+                config.password,
+                {
+                    dialect: config.dialect,
+                    host: config.host,
+                    logging: config.logging || false,
+                }
+            );
         }
 
         // Initialize models

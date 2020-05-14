@@ -52,7 +52,8 @@ const { Database } = require("describo-data-service");
 
 ## Connect
 
-Connect to the database by specifying the path to the sqlite file.
+### Default: SQLite
+Connect to an sqlite database by specifying the path to the sqlite database file.
 If it doesn't exist it will be created.
 
 ```
@@ -62,6 +63,24 @@ await database.connect()
 ```
 
 Database now available
+
+### Connecting to another database
+
+The library can be configured to talk to a standalone database. Just pass a config object
+instead of the database file. It will be something like:
+
+```
+const config = {
+    database: 'name of the database',
+    username: 'username to connect with',
+    password: 'password to us',
+    host: 'the database server IP / FQDN',
+    dialect: 'one of mysql, postgres, or mssql',
+    logging: true || false - turns SQL statement logging on or off
+}
+const database = new Database({ config });
+await database.connect()
+```
 
 ## Load data
 
