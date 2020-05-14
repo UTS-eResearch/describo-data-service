@@ -172,6 +172,10 @@ test("it should be able to query the database", async () => {
     await database.connect();
     await database.load({ file: dataPack });
 
+    //
+    // OR QUERIES
+    //
+
     // test query for @id
     let results = await database.query({ "@id": 1 });
     expect(results.length).toBe(1);
@@ -187,6 +191,23 @@ test("it should be able to query the database", async () => {
     // test query for substring match on description
     results = await database.query({ description: "awesome" });
     expect(results.length).toBe(1);
+
+    //
+    // AND QUERIES
+    //
+    results = await database.query({
+        queryType: "and",
+        description: "awesome",
+        name: "describo",
+    });
+    expect(results.length).toBe(1);
+
+    results = await database.query({
+        queryType: "and",
+        description: "awesome",
+        name: "cows",
+    });
+    expect(results.length).toBe(0);
 
     // test query failure on name
     results = await database.query({ name: "awesome" });

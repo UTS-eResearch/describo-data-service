@@ -64,14 +64,36 @@ class Database {
         }
     }
 
-    async query({ "@id": id, "@type": type, name, description, limit = 10 }) {
+    async query({
+        queryType = "or",
+        "@id": id,
+        "@type": type,
+        name,
+        description,
+        limit = 10,
+    }) {
         let where = {};
         if (id) where["@id"] = { [Op.substring]: id };
         if (type) where["@type"] = { [Op.substring]: type };
         if (name) where.name = { [Op.substring]: name };
         if (description) where.description = { [Op.substring]: description };
+
+        if (queryType === "or") {
+            where = {
+                [Op.or]: where,
+            };
+        } else if (queryType === "and") {
+            where = {
+                [Op.and]: where,
+            };
+        }
         return await this.models.data
-            .findAll({ where, limit })
+            .findAll({
+                where: {
+                    [Op.or]: where,
+                },
+                limit,
+            })
             .map((result) => {
                 return {
                     id: result.get("id"),
