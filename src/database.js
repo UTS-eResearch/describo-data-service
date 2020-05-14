@@ -107,6 +107,7 @@ class Database {
             .findAll({
                 where,
                 limit,
+                order: [["name", "ASC"]],
             })
             .map((result) => {
                 return {
