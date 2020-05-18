@@ -3,25 +3,6 @@
 This is a library to manage an sqlite database of data for describo to use in
 lookups.
 
--   [Describo Data Service](#describo-data-service)
--   [Use this in your code](#use-this-in-your-code)
--   [Tests](#tests)
--   [API](#api)
-    -   [Get the Database class](#get-the-database-class)
-    -   [Connect](#connect)
-    -   [Load data](#load-data)
-        -   [from file](#from-file)
-        -   [from a URL](#from-a-url)
-    -   [Query the data](#query-the-data)
-        -   [query for @id](#query-for-id)
-        -   [query for @id: return 20 results instead of 10](#query-for-id-return-20-results-instead-of-10)
-        -   [query for @type](#query-for-type)
-        -   [query for substring match on name](#query-for-substring-match-on-name)
-        -   [query for substring match on description](#query-for-substring-match-on-description)
-        -   [querying on multiple fields also supported](#querying-on-multiple-fields-also-supported)
-    -   [Retrieve the data blob for a given identifier](#retrieve-the-data-blob-for-a-given-identifier)
--   [Data Pack Structure](#data-pack-structure)
-
 # Use this in your code
 
 ```
@@ -53,6 +34,7 @@ const { Database } = require("describo-data-service");
 ## Connect
 
 ### Default: SQLite
+
 Connect to an sqlite database by specifying the path to the sqlite database file.
 If it doesn't exist it will be created.
 
@@ -87,7 +69,8 @@ await database.connect()
 Data can be loaded from a local file or a URL. See the section
 [Data Pack Structure](#data-pack-structure) for the required structure.
 
-The data will be bulk loaded in lots of 10 but you can change that chunk size if required.
+1. The data will be bulk loaded in lots of 10 but you can change that chunk size if required.
+2. By default, reloading data from a source will first remove all of the data in the store from the last load of that source. Consider when the data being loaded changes @id. In that case you can end up with multiple copies of the data - the data with the original @id and the data with the new @id. This behavious can be disabled by providing the flag `deleteOnReload = false` when loading the data.
 
 ### from file
 
@@ -105,8 +88,12 @@ You can load a data pack again - the data will be updated.
 ### from a URL
 
 ```
+// chunk size of 10 and deleteOnReload: true (by default)
 const url = 'https://path/to/data/pack.file'
 await database.load({ url })
+
+// chunk size of 10 and deleteOnReload: false
+await database.load({ url, deleteOnReload: false })
 ```
 
 You can load a data pack again - the data will be updated.

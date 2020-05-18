@@ -1,10 +1,8 @@
 "use strict";
-const { Model, DataTypes } = require("sequelize");
 
-class Data extends Model {}
-
-function init(sequelize) {
-    Data.init(
+module.exports = function (sequelize, DataTypes) {
+    let Data = sequelize.define(
+        "data",
         {
             id: {
                 primaryKey: true,
@@ -36,8 +34,6 @@ function init(sequelize) {
             },
         },
         {
-            sequelize,
-            modelName: "data",
             indexes: [
                 { fields: ["@type"] },
                 { fields: ["@type", "@id"] },
@@ -46,5 +42,8 @@ function init(sequelize) {
             ],
         }
     );
-}
-module.exports = init;
+    Data.associate = function (models) {
+        Data.belongsTo(models.source, { onDelete: "cascade" });
+    };
+    return Data;
+};

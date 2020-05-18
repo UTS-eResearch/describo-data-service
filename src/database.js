@@ -30,7 +30,15 @@ class Database {
 
         // Initialize models
         models.forEach((model) => {
-            model(sequelize);
+            model = model(sequelize, DataTypes);
+            models[model.name] = model;
+        });
+
+        // Apply associations
+        Object.keys(models).forEach((key) => {
+            if ("associate" in models[key]) {
+                models[key].associate(models);
+            }
         });
         this.sequelize = sequelize;
         this.models = sequelize.models;
@@ -41,12 +49,21 @@ class Database {
         return this.sequelize.models;
     }
 
-    async load({ file, url, chunkSize = 10 }) {
+    async load({ file, url, chunkSize = 10, deleteOnReload = true }) {
         let data;
+        let source;
         if (file && (await pathExists(file))) {
             data = await readJson(file);
             this.verifyInputData({ data });
+
+            let entry = await this.models.source.findOne({
+                where: { file },
+                include: [{ model: this.models.data }],
+            });
+            if (entry && deleteOnReload) await entry.destroy();
+
             await this.models.source.upsert({ file });
+            source = await this.models.source.findOne({ where: { file } });
         } else if (url) {
             let response = await fetch(url, { cache: "reload" });
             if (response.status !== 200) {
@@ -54,7 +71,15 @@ class Database {
             }
             data = await response.json();
             this.verifyInputData({ data });
+
+            let entry = await this.models.source.findOne({
+                where: { url },
+                include: [{ model: this.models.data }],
+            });
+            if (entry && deleteOnReload) await entry.destroy();
+
             await this.models.source.upsert({ url });
+            source = await this.models.source.findOne({ where: { url } });
         }
 
         for (let c of chunk(data, chunkSize)) {
@@ -65,6 +90,7 @@ class Database {
                     name: entry.name,
                     description: entry.description,
                     data: entry,
+                    sourceId: source.id,
                 };
             });
             await this.models.data.bulkCreate(c, {
