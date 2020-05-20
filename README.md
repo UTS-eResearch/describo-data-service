@@ -1,7 +1,30 @@
-# Describo Data Service
 
 This is a library to manage an sqlite database of data for describo to use in
 lookups.
+
+- [Use this in your code](#use-this-in-your-code)
+- [Tests](#tests)
+- [API](#api)
+  - [Get the Database class](#get-the-database-class)
+  - [Connect](#connect)
+    - [Default: SQLite](#default-sqlite)
+    - [Connecting to another database](#connecting-to-another-database)
+  - [Load data](#load-data)
+    - [from file](#from-file)
+    - [from a URL](#from-a-url)
+    - [Get the types in the database](#get-the-types-in-the-database)
+  - [Put data](#put-data)
+  - [Remove data](#remove-data)
+  - [Query the data](#query-the-data)
+    - [query for @id](#query-for-id)
+    - [query for @id: return 20 results instead of 10](#query-for-id-return-20-results-instead-of-10)
+    - [query for @type](#query-for-type)
+    - [query for substring match on name](#query-for-substring-match-on-name)
+    - [query for substring match on description](#query-for-substring-match-on-description)
+    - [querying on multiple fields is supported](#querying-on-multiple-fields-is-supported)
+    - [Example result from query](#example-result-from-query)
+  - [Retrieve the data blob for a given identifier](#retrieve-the-data-blob-for-a-given-identifier)
+- [Data Pack Structure](#data-pack-structure)
 
 # Use this in your code
 
@@ -103,6 +126,27 @@ You can load a data pack again - the data will be updated.
 ```
 let results = await database.getTypes();
 > [ 'Person', 'Product', ...]
+```
+
+## Put data
+
+You can put custom items in to the store for use with the put method provided that you meet all of the requirement as defined in the section [Data Pack Structure](#data-pack-structure). As these items are not coming from a data pack they will not have a source attached.
+```
+let data = [
+    {
+        '@id': '1',
+        '@type': 'Person',
+        name: 'Me'
+    }
+]
+ await database.put({ data })
+```
+
+## Remove data
+
+You can remove items from the store by passing an id.
+```
+await database.remove({ '@id': id })
 ```
 
 ## Query the data

@@ -7,8 +7,7 @@ test("it should be able to get a handle to an sqlite database", async () => {
     await remove(databaseFile);
 
     const database = new Database({ databaseFile });
-    const { data } = await database.connect();
-    // expect(data).toBeDefined();
+    await database.connect();
     await remove(databaseFile);
 });
 test("test verifying input data", () => {
@@ -69,12 +68,15 @@ test("it should be able to load data from a file", async () => {
     const database = new Database({ databaseFile });
     await database.connect();
     await database.load({ file: dataPack });
-    ({ data } = database.models);
-    const results = await data.findAll();
+    const models = database.models;
+    const results = await models.data.findAll({
+        include: [{ model: models.source }],
+    });
     expect(results.length).toBe(1);
     const result = results[0].get();
     expect(result["@id"]).toBe("1");
     expect(result["@type"]).toBe("Product");
+    expect(result.source.get("file")).toBe(dataPack);
     expect(result.name).toBe("describo");
     await remove(dataPack);
     await remove(databaseFile);
@@ -139,12 +141,15 @@ test("it should be able to load data from a url", async () => {
     const database = new Database({ databaseFile });
     await database.connect();
     await database.load({ url });
-    ({ data } = database.models);
-    const results = await data.findAll();
+    models = database.models;
+    const results = await models.data.findAll({
+        include: [{ model: models.source }],
+    });
     expect(results.length).toBe(1);
     const result = results[0].get();
     expect(result["@id"]).toBe("1");
     expect(result["@type"]).toBe("Product");
+    expect(result.source.get("url")).toBe(url);
     expect(result.name).toBe("describo");
     await remove(databaseFile);
 });
@@ -319,5 +324,57 @@ test("it should be able to retrieve a specific entry", async () => {
     expect(result.cows).toBe("y");
 
     await remove(dataPack);
+    await remove(databaseFile);
+});
+test("it should be able to add a custom item to the store", async () => {
+    const data = [
+        {
+            "@id": "1",
+            "@type": "Person",
+            name: "me",
+        },
+    ];
+
+    const databaseFile = path.join(__dirname, "database.sqlite");
+    let database = new Database({ databaseFile });
+    await database.connect();
+    await database.put({ data });
+
+    let result = await database.query({
+        "@id": data[0]["@id"],
+        "@type": data[0]["@type"],
+    });
+    expect(result.length).toBe(1);
+    await remove(databaseFile);
+});
+test("it should be able to remove a custom item from the store", async () => {
+    const item = {
+        "@id": "1",
+        "@type": "Person",
+        name: "me",
+    };
+    const data = [item];
+
+    const databaseFile = path.join(__dirname, "database.sqlite");
+    let database = new Database({ databaseFile });
+    await database.connect();
+    await database.put({ data });
+
+    let result = await database.query({
+        "@id": item["@id"],
+        "@type": item["@type"],
+    });
+    expect(result.length).toBe(1);
+
+    await database.remove({ "@id": item["@id"] });
+    result = await database.query({
+        "@id": item["@id"],
+        "@type": item["@type"],
+    });
+    expect(result.length).toBe(0);
+
+    // be graceful when passed a non-existent id - nothing should happen
+    await database.remove({ "@id": item["@id"] });
+
     await remove(databaseFile);
 });

@@ -46,7 +46,6 @@ class Database {
 
     async connect() {
         await this.sequelize.sync();
-        return this.sequelize.models;
     }
 
     async load({ file, url, chunkSize = 10, deleteOnReload = true }) {
@@ -97,6 +96,30 @@ class Database {
                 updateOnDuplicate: ["@id"],
             });
         }
+    }
+
+    async put({ data }) {
+        this.verifyInputData({ data });
+        for (let item of data) {
+            await this.models.data.findOrCreate({
+                where: {
+                    "@id": item["@id"],
+                    "@type": item["@type"],
+                    name: item.name,
+                },
+                defaults: {
+                    "@id": item["@id"],
+                    "@type": item["@type"],
+                    name: item.name,
+                    description: item.description,
+                    data: item,
+                },
+            });
+        }
+    }
+
+    async remove({ "@id": id }) {
+        await this.models.data.destroy({ where: { "@id": id } });
     }
 
     async query({
