@@ -12,7 +12,7 @@ lookups.
   - [Load data](#load-data)
     - [from file](#from-file)
     - [from a URL](#from-a-url)
-    - [Get the types in the database](#get-the-types-in-the-database)
+  - [Get the types in the database](#get-the-types-in-the-database)
   - [List local items](#list-local-items)
   - [Put data](#put-data)
   - [Remove data](#remove-data)
@@ -122,11 +122,17 @@ await database.load({ url, deleteOnReload: false })
 
 You can load a data pack again - the data will be updated.
 
-### Get the types in the database
+## Get the types in the database
 
 ```
-let results = await database.getTypes();
+// Get all types - data pack and local
+let results = await database.getTypes({});
 > [ 'Person', 'Product', ...]
+
+// Get only the types of our own local entries stored
+let results = await database.getTypes({ local: true });
+> [ 'Cow', 'Dog', ...]
+
 ```
 
 ## List local items

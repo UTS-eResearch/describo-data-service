@@ -207,19 +207,23 @@ class Database {
             });
     }
 
-    async getTypes() {
-        return (
-            await this.models.data
-                .findAll({
-                    attributes: [
-                        [
-                            Sequelize.fn("DISTINCT", Sequelize.col("@type")),
-                            "types",
-                        ],
-                    ],
-                })
-                .map((result) => result.get("types"))
-        ).sort();
+    async getTypes({ local = false }) {
+        let types;
+        if (local) {
+            types = await this.models.data.findAll({
+                where: { sourceId: null },
+                attributes: [
+                    [Sequelize.fn("DISTINCT", Sequelize.col("@type")), "types"],
+                ],
+            });
+        } else {
+            types = await this.models.data.findAll({
+                attributes: [
+                    [Sequelize.fn("DISTINCT", Sequelize.col("@type")), "types"],
+                ],
+            });
+        }
+        return types.map((result) => result.get("types")).sort();
     }
 
     async get({ "@id": id }) {

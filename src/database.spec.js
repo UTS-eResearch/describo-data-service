@@ -251,23 +251,50 @@ test("it should be able to get a list of types loaded in to the database", async
 
     let database = new Database({ databaseFile });
     await database.connect();
+
+    // get all types from data pack load
     await database.load({ file: dataPack });
-    let types = await database.getTypes();
+    let types = await database.getTypes({});
     expect(types).toEqual(["Person", "Product"]);
 
-    await remove(dataPack);
-    await remove(databaseFile);
-
+    // get no types
     data = [];
-    await remove(dataPack);
     await writeJson(dataPack, data);
-    await remove(databaseFile);
-
-    database = new Database({ databaseFile });
-    await database.connect();
     await database.load({ file: dataPack });
-    types = await database.getTypes();
+    types = await database.getTypes({});
     expect(types).toEqual([]);
+
+    // get the types for local items only
+    data = [
+        {
+            "@id": "3",
+            "@type": "Cow",
+            name: "me",
+        },
+    ];
+
+    await database.put({ data });
+    types = await database.getTypes({ local: true });
+    expect(types).toEqual(["Cow"]);
+
+    // get all types including local
+    data = [
+        {
+            "@id": "1",
+            "@type": "Product",
+            name: "describo",
+            description: "an awesome tool!",
+        },
+        {
+            "@id": "2",
+            "@type": "Person",
+            name: "human",
+        },
+    ];
+    await writeJson(dataPack, data);
+    await database.load({ file: dataPack });
+    types = await database.getTypes({});
+    expect(types).toEqual(["Cow", "Person", "Product"]);
 
     await remove(dataPack);
     await remove(databaseFile);
