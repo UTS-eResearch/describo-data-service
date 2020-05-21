@@ -125,7 +125,11 @@ class Database {
             });
             if (item.length) {
                 item = item.shift();
-                item = await item.update({ data: itemData });
+                item = await item.update({
+                    name: itemData.name,
+                    description: itemData.description,
+                    data: itemData,
+                });
             }
         }
     }
