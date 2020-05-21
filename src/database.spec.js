@@ -326,8 +326,8 @@ test("it should be able to retrieve a specific entry", async () => {
     await remove(dataPack);
     await remove(databaseFile);
 });
-test("it should be able to add a custom item to the store", async () => {
-    const data = [
+test("it should be able to add to and update a custom item", async () => {
+    let data = [
         {
             "@id": "1",
             "@type": "Person",
@@ -340,11 +340,29 @@ test("it should be able to add a custom item to the store", async () => {
     await database.connect();
     await database.put({ data });
 
-    let result = await database.query({
+    let result = await database.get({
         "@id": data[0]["@id"],
-        "@type": data[0]["@type"],
     });
-    expect(result.length).toBe(1);
+    // console.log(result);
+    expect(result).toEqual(data[0]);
+    expect(result).toBeDefined();
+
+    data = [
+        {
+            "@id": "1",
+            "@type": "Person",
+            name: "me",
+            description: "mojumbo",
+        },
+    ];
+    await database.put({ data });
+
+    result = await database.get({
+        "@id": data[0]["@id"],
+    });
+    expect(result.description).toBe(data[0].description);
+    expect(result).toEqual(data[0]);
+    // console.log(result);
     await remove(databaseFile);
 });
 test("it should be able to remove a custom item from the store", async () => {
@@ -450,5 +468,5 @@ test("getting a list of custom items from the store", async () => {
     expect(results.items[1]).toEqual(data[1]);
 
     await remove(databaseFile);
-    await remove(dataPack)
+    await remove(dataPack);
 });

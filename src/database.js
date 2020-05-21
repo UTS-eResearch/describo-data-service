@@ -1,5 +1,12 @@
 const { Sequelize, Model, DataTypes } = require("sequelize");
-const { has, isArray, isPlainObject, chunk, isEmpty } = require("lodash");
+const {
+    cloneDeep,
+    has,
+    isArray,
+    isPlainObject,
+    chunk,
+    isEmpty,
+} = require("lodash");
 let models = [require("./model.data"), require("./model.source")];
 const { readJson, pathExists } = require("fs-extra");
 const Op = Sequelize.Op;
@@ -101,7 +108,8 @@ class Database {
     async put({ data }) {
         this.verifyInputData({ data });
         for (let item of data) {
-            await this.models.data.findOrCreate({
+            const itemData = cloneDeep(item);
+            item = await this.models.data.findOrCreate({
                 where: {
                     "@id": item["@id"],
                     "@type": item["@type"],
@@ -115,21 +123,30 @@ class Database {
                     data: item,
                 },
             });
+            if (item.length) {
+                item = item.shift();
+                item = await item.update({ data: itemData });
+            }
         }
     }
 
-    async listLocalItems({ '@type': type, offset = 0, limit = 10, order = 'ASC' }) {
+    async listLocalItems({
+        "@type": type,
+        offset = 0,
+        limit = 10,
+        order = "ASC",
+    }) {
         const where = {
-            sourceId: null
-        }
-        order = order === 'ASC' ? [ 'name', 'ASC'] : [ 'name', 'DESC']
-        
-        if (type) where['@type'] = type
+            sourceId: null,
+        };
+        order = order === "ASC" ? ["name", "ASC"] : ["name", "DESC"];
+
+        if (type) where["@type"] = type;
         const results = await this.models.data.findAndCountAll({
             where,
             offset,
             limit,
-            order: [order]
+            order: [order],
         });
         return {
             total: results.count,
