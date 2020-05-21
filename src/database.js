@@ -113,7 +113,6 @@ class Database {
                 where: {
                     "@id": item["@id"],
                     "@type": item["@type"],
-                    name: item.name,
                 },
                 defaults: {
                     "@id": item["@id"],
