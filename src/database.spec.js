@@ -378,3 +378,77 @@ test("it should be able to remove a custom item from the store", async () => {
 
     await remove(databaseFile);
 });
+test("getting a list of custom items from the store", async () => {
+    // load a data pack
+    let data = [
+        {
+            "@id": "1",
+            "@type": "Product",
+            name: "describo",
+            description: "an awesome tool!",
+        },
+    ];
+    const dataPack = path.join(__dirname, "data-pack");
+    const databaseFile = path.join(__dirname, "database.sqlite");
+
+    await remove(dataPack);
+    await writeJson(dataPack, data);
+    await remove(databaseFile);
+
+    const database = new Database({ databaseFile });
+    await database.connect();
+    await database.load({ file: dataPack });
+
+    // add some custom data
+    data = [
+        {
+            "@id": "2",
+            "@type": "Person",
+            name: "me",
+        },
+        {
+            "@id": "3",
+            "@type": "Cow",
+            name: "John",
+        },
+    ];
+    await database.put({ data });
+
+    // list local items
+    let results = await database.listLocalItems({});
+    // console.log(results);
+    expect(results.total).toBe(2);
+    expect(results.items[1]).toEqual(data[0]);
+    expect(results.items[0]).toEqual(data[1]);
+
+    // list providing only offset and limit
+    results = await database.listLocalItems({ offset: 0, limit: 10 });
+    // console.log(results);
+    expect(results.total).toBe(2);
+    expect(results.items[1]).toEqual(data[0]);
+    expect(results.items[0]).toEqual(data[1]);
+
+    // find type = Cow
+    results = await database.listLocalItems({
+        "@type": "Cow",
+        offset: 0,
+        limit: 10,
+    });
+    // console.log(results);
+    expect(results.total).toBe(1);
+    expect(results.items[0]).toEqual(data[1]);
+
+    // list providing only offset, limit and order desc by name
+    results = await database.listLocalItems({
+        offset: 0,
+        limit: 10,
+        order: "DESC",
+    });
+    // console.log(results);
+    expect(results.total).toBe(2);
+    expect(results.items[0]).toEqual(data[0]);
+    expect(results.items[1]).toEqual(data[1]);
+
+    await remove(databaseFile);
+    await remove(dataPack)
+});

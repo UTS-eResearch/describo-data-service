@@ -118,6 +118,25 @@ class Database {
         }
     }
 
+    async listLocalItems({ '@type': type, offset = 0, limit = 10, order = 'ASC' }) {
+        const where = {
+            sourceId: null
+        }
+        order = order === 'ASC' ? [ 'name', 'ASC'] : [ 'name', 'DESC']
+        
+        if (type) where['@type'] = type
+        const results = await this.models.data.findAndCountAll({
+            where,
+            offset,
+            limit,
+            order: [order]
+        });
+        return {
+            total: results.count,
+            items: results.rows.map((r) => r.get("data")),
+        };
+    }
+
     async remove({ "@id": id }) {
         await this.models.data.destroy({ where: { "@id": id } });
     }

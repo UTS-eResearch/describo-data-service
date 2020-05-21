@@ -13,6 +13,7 @@ lookups.
     - [from file](#from-file)
     - [from a URL](#from-a-url)
     - [Get the types in the database](#get-the-types-in-the-database)
+  - [List local items](#list-local-items)
   - [Put data](#put-data)
   - [Remove data](#remove-data)
   - [Query the data](#query-the-data)
@@ -126,6 +127,30 @@ You can load a data pack again - the data will be updated.
 ```
 let results = await database.getTypes();
 > [ 'Person', 'Product', ...]
+```
+
+## List local items
+
+This method allows you to get a list of items added via `put`. It takes four arguments, all of which are optional:
+* offset: the result to start from - ie the page
+* limit: the number of results to return 
+* @type: the type to filter by
+* order: 'ASC' || 'DESC' - results will be order by name in this order
+
+```
+
+// list local items accepting defaults: offset = 0, limit = 10, order: name ASC
+let results = await database.listLocalItems({})
+
+// list local items accepting defaults: offset = 0, limit = 10, order: name ASC
+results = await database.listLocalItems({ offset: 0, limit: 10 });
+
+// list local items matching type = 'Person' 
+results = await database.listLocalItems({ '@type': 'Person', offset: 0, limit: 10 });
+
+// list local items matching type = 'Person' order name DESC
+results = await database.listLocalItems({ '@type': 'Person', order: 'DESC' });
+
 ```
 
 ## Put data
