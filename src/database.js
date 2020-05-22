@@ -138,13 +138,14 @@ class Database {
         offset = 0,
         limit = 10,
         order = "ASC",
+        filter = undefined,
     }) {
-        const where = {
-            sourceId: null,
-        };
+        let where = { sourceId: null };
+        if (filter) where.name = { [Op.substring]: filter };
+        if (type) where["@type"] = type;
+
         order = order === "ASC" ? ["name", "ASC"] : ["name", "DESC"];
 
-        if (type) where["@type"] = type;
         const results = await this.models.data.findAndCountAll({
             where,
             offset,

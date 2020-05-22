@@ -1,4 +1,3 @@
-
 This is a library to manage an sqlite database of data for describo to use in
 lookups.
 
@@ -138,10 +137,12 @@ let results = await database.getTypes({ local: true });
 ## List local items
 
 This method allows you to get a list of items added via `put`. It takes four arguments, all of which are optional:
-* offset: the result to start from - ie the page
-* limit: the number of results to return 
-* @type: the type to filter by
-* order: 'ASC' || 'DESC' - results will be order by name in this order
+
+-   offset: the result to start from - ie the page
+-   limit: the number of results to return
+-   order: 'ASC' || 'DESC' - results will be order by name in this order
+-   @type: the type to filter by
+-   filter: a string for filtering on the name property - constructs a LIKE query: %filter%
 
 ```
 
@@ -151,17 +152,21 @@ let results = await database.listLocalItems({})
 // list local items accepting defaults: offset = 0, limit = 10, order: name ASC
 results = await database.listLocalItems({ offset: 0, limit: 10 });
 
-// list local items matching type = 'Person' 
+// list local items matching type = 'Person'
 results = await database.listLocalItems({ '@type': 'Person', offset: 0, limit: 10 });
 
-// list local items matching type = 'Person' order name DESC
+// list local items matching type = 'Person', order name DESC
 results = await database.listLocalItems({ '@type': 'Person', order: 'DESC' });
+
+// list local items matching type = 'Person', order name DESC, filter name like %Cow%
+results = await database.listLocalItems({ '@type': 'Person', order: 'DESC', filter: "Cow" });
 
 ```
 
 ## Put data
 
 You can put custom items in to the store for use with the put method provided that you meet all of the requirement as defined in the section [Data Pack Structure](#data-pack-structure). As these items are not coming from a data pack they will not have a source attached.
+
 ```
 let data = [
     {
@@ -176,6 +181,7 @@ let data = [
 ## Remove data
 
 You can remove items from the store by passing an id.
+
 ```
 await database.remove({ '@id': id })
 ```

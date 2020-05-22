@@ -466,7 +466,7 @@ test("getting a list of custom items from the store", async () => {
     expect(results.items[1]).toEqual(data[0]);
     expect(results.items[0]).toEqual(data[1]);
 
-    // list providing only offset and limit
+    // list providing offset and limit
     results = await database.listLocalItems({ offset: 0, limit: 10 });
     // console.log(results);
     expect(results.total).toBe(2);
@@ -483,7 +483,7 @@ test("getting a list of custom items from the store", async () => {
     expect(results.total).toBe(1);
     expect(results.items[0]).toEqual(data[1]);
 
-    // list providing only offset, limit and order desc by name
+    // list providing offset, limit and order desc by name
     results = await database.listLocalItems({
         offset: 0,
         limit: 10,
@@ -493,6 +493,16 @@ test("getting a list of custom items from the store", async () => {
     expect(results.total).toBe(2);
     expect(results.items[0]).toEqual(data[0]);
     expect(results.items[1]).toEqual(data[1]);
+
+    // list providing offset, limit and filter string
+    results = await database.listLocalItems({
+        offset: 0,
+        limit: 10,
+        order: "DESC",
+        filter: "oh",
+    });
+    expect(results.total).toBe(1);
+    expect(results.items[0]).toEqual(data[1]);
 
     await remove(databaseFile);
     await remove(dataPack);
