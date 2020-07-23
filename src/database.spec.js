@@ -507,3 +507,22 @@ test("getting a list of custom items from the store", async () => {
     await remove(databaseFile);
     await remove(dataPack);
 });
+test("cleanup - blank nodes", async () => {
+    let data = [
+        {
+            "@id": "_:xxiuhfghdskfgnjsdfv",
+            "@type": "Person",
+            name: "me",
+        },
+    ];
+
+    const databaseFile = path.join(__dirname, "database.sqlite");
+    let database = new Database({ databaseFile });
+    await database.connect();
+    await database.put({ data });
+    let results = await database.listLocalItems({});
+    expect(results.items.length).toBe(1);
+    await database.cleanup({});
+    results = await database.listLocalItems({});
+    expect(results.items.length).toBe(0);
+});

@@ -237,6 +237,14 @@ class Database {
         ).get("data");
     }
 
+    async cleanup({ blankNodes = true }) {
+        if (blankNodes) {
+            await this.models.data.destroy({
+                where: { "@id": { [Op.startsWith]: "_:" } },
+            });
+        }
+    }
+
     verifyInputData({ data }) {
         if (!isArray(data)) {
             throw new Error(`Data must be an array`);
