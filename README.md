@@ -15,6 +15,7 @@ lookups.
   - [List local items](#list-local-items)
   - [Put data](#put-data)
   - [Remove data](#remove-data)
+  - [Cleanup the store](#cleanup-the-store)
   - [Query the data](#query-the-data)
     - [query for @id](#query-for-id)
     - [query for @id: return 20 results instead of 10](#query-for-id-return-20-results-instead-of-10)
@@ -185,6 +186,18 @@ You can remove items from the store by passing an id.
 ```
 await database.remove({ '@id': id })
 ```
+
+## Cleanup the store
+
+```
+await database.cleanup({ })o
+
+or
+
+await database.cleanup({ blankNodes: true })
+```
+
+This method will - by default - remove blank nodes from the store. It may grow more functionality.
 
 ## Query the data
 
