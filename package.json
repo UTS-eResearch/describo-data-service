@@ -1,6 +1,6 @@
 {
     "name": "describo-data-service",
-    "version": "0.5.0",
+    "version": "0.9.0",
     "description": "A library / service to provide data to describo",
     "main": "index.js",
     "scripts": {
