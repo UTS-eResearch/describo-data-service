@@ -1,3 +1,5 @@
+# Development of this application has moved to [https://github.com/Arkisto-Platform/describo-data-service](https://github.com/Arkisto-Platform/describo-data-service).
+
 This is a library to manage an sqlite database of data for describo to use in
 lookups.
 
